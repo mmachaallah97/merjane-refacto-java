@@ -2,6 +2,7 @@ package com.nimbleways.springboilerplate.controllers;
 
 import com.nimbleways.springboilerplate.entities.Order;
 import com.nimbleways.springboilerplate.entities.Product;
+import com.nimbleways.springboilerplate.entities.ProductType;
 import com.nimbleways.springboilerplate.repositories.OrderRepository;
 import com.nimbleways.springboilerplate.repositories.ProductRepository;
 import com.nimbleways.springboilerplate.services.implementations.NotificationService;
@@ -43,7 +44,7 @@ class MyControllerIntegrationTests {
 
         @Test
         void decrementsAvailableWhenInStock() throws Exception {
-            Product product = saveProduct(new Product(null, 15, 30, "NORMAL", "USB Cable", null, null, null));
+            Product product = saveProduct(new Product(null, 15, 30, ProductType.NORMAL, "USB Cable", null, null, null));
 
             processOrderFor(product);
 
@@ -53,7 +54,7 @@ class MyControllerIntegrationTests {
 
         @Test
         void notifiesDelayWhenOutOfStockAndLeadTimePositive() throws Exception {
-            Product product = saveProduct(new Product(null, 10, 0, "NORMAL", "USB Dongle", null, null, null));
+            Product product = saveProduct(new Product(null, 10, 0, ProductType.NORMAL, "USB Dongle", null, null, null));
 
             processOrderFor(product);
 
@@ -64,7 +65,7 @@ class MyControllerIntegrationTests {
 
         @Test
         void doesNothingWhenOutOfStockAndLeadTimeZero() throws Exception {
-            Product product = saveProduct(new Product(null, 0, 0, "NORMAL", "Forgotten Cable", null, null, null));
+            Product product = saveProduct(new Product(null, 0, 0, ProductType.NORMAL, "Forgotten Cable", null, null, null));
 
             processOrderFor(product);
 
@@ -78,7 +79,7 @@ class MyControllerIntegrationTests {
 
         @Test
         void decrementsAvailableWhenInSeasonAndInStock() throws Exception {
-            Product product = saveProduct(new Product(null, 15, 30, "SEASONAL", "Watermelon",
+            Product product = saveProduct(new Product(null, 15, 30, ProductType.SEASONAL, "Watermelon",
                     null, LocalDate.now().minusDays(2), LocalDate.now().plusDays(58)));
 
             processOrderFor(product);
@@ -89,7 +90,7 @@ class MyControllerIntegrationTests {
 
         @Test
         void notifiesOutOfStockBeforeSeasonStarts() throws Exception {
-            Product product = saveProduct(new Product(null, 15, 30, "SEASONAL", "Grapes",
+            Product product = saveProduct(new Product(null, 15, 30, ProductType.SEASONAL, "Grapes",
                     null, LocalDate.now().plusDays(180), LocalDate.now().plusDays(240)));
 
             processOrderFor(product);
@@ -101,7 +102,7 @@ class MyControllerIntegrationTests {
 
         @Test
         void marksUnavailableWhenLeadTimeExceedsSeasonEnd() throws Exception {
-            Product product = saveProduct(new Product(null, 30, 0, "SEASONAL", "Strawberry",
+            Product product = saveProduct(new Product(null, 30, 0, ProductType.SEASONAL, "Strawberry",
                     null, LocalDate.now().minusDays(10), LocalDate.now().plusDays(5)));
 
             processOrderFor(product);
@@ -113,7 +114,7 @@ class MyControllerIntegrationTests {
 
         @Test
         void notifiesDelayWhenInSeasonOutOfStockAndLeadTimeFitsSeason() throws Exception {
-            Product product = saveProduct(new Product(null, 5, 0, "SEASONAL", "Tomato",
+            Product product = saveProduct(new Product(null, 5, 0, ProductType.SEASONAL, "Tomato",
                     null, LocalDate.now().minusDays(10), LocalDate.now().plusDays(30)));
 
             processOrderFor(product);
@@ -128,7 +129,7 @@ class MyControllerIntegrationTests {
 
         @Test
         void decrementsAvailableWhenNotExpiredAndInStock() throws Exception {
-            Product product = saveProduct(new Product(null, 15, 30, "EXPIRABLE", "Butter",
+            Product product = saveProduct(new Product(null, 15, 30, ProductType.EXPIRABLE, "Butter",
                     LocalDate.now().plusDays(26), null, null));
 
             processOrderFor(product);
@@ -140,7 +141,7 @@ class MyControllerIntegrationTests {
         @Test
         void notifiesExpirationAndZeroesAvailableWhenExpired() throws Exception {
             LocalDate expiry = LocalDate.now().minusDays(2);
-            Product product = saveProduct(new Product(null, 90, 6, "EXPIRABLE", "Milk",
+            Product product = saveProduct(new Product(null, 90, 6, ProductType.EXPIRABLE, "Milk",
                     expiry, null, null));
 
             processOrderFor(product);
@@ -153,7 +154,7 @@ class MyControllerIntegrationTests {
         @Test
         void notifiesExpirationWhenNotExpiredButOutOfStock() throws Exception {
             LocalDate expiry = LocalDate.now().plusDays(10);
-            Product product = saveProduct(new Product(null, 5, 0, "EXPIRABLE", "Yogurt",
+            Product product = saveProduct(new Product(null, 5, 0, ProductType.EXPIRABLE, "Yogurt",
                     expiry, null, null));
 
             processOrderFor(product);
@@ -166,10 +167,10 @@ class MyControllerIntegrationTests {
 
     @Test
     void processesMixedOrderEndToEnd() throws Exception {
-        Product usbCable = saveProduct(new Product(null, 15, 30, "NORMAL", "USB Cable", null, null, null));
-        Product butter = saveProduct(new Product(null, 15, 30, "EXPIRABLE", "Butter",
+        Product usbCable = saveProduct(new Product(null, 15, 30, ProductType.NORMAL, "USB Cable", null, null, null));
+        Product butter = saveProduct(new Product(null, 15, 30, ProductType.EXPIRABLE, "Butter",
                 LocalDate.now().plusDays(26), null, null));
-        Product watermelon = saveProduct(new Product(null, 15, 30, "SEASONAL", "Watermelon",
+        Product watermelon = saveProduct(new Product(null, 15, 30, ProductType.SEASONAL, "Watermelon",
                 null, LocalDate.now().minusDays(2), LocalDate.now().plusDays(58)));
 
         Order order = orderRepository.save(orderOf(usbCable, butter, watermelon));
