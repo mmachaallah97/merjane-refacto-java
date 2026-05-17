@@ -166,6 +166,13 @@ class MyControllerIntegrationTests {
     }
 
     @Test
+    void returnsNotFoundWhenOrderDoesNotExist() throws Exception {
+        mockMvc.perform(post("/orders/{orderId}/processOrder", 999_999L)
+                        .contentType("application/json"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void processesMixedOrderEndToEnd() throws Exception {
         Product usbCable = saveProduct(new Product(null, 15, 30, ProductType.NORMAL, "USB Cable", null, null, null));
         Product butter = saveProduct(new Product(null, 15, 30, ProductType.EXPIRABLE, "Butter",
@@ -210,3 +217,4 @@ class MyControllerIntegrationTests {
         return order;
     }
 }
+
